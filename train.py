@@ -43,8 +43,14 @@ tf.reset_default_graph()
 is_training_placeholder = tf.placeholder(tf.bool)
 batch_size = FLAGS.batch_size
 
-image_tensor_train, orig_img_tensor_train, annotation_tensor_train = inputs(FLAGS.dataset_train, train=True, batch_size=batch_size, num_epochs=1e4)
-image_tensor_val, orig_img_tensor_val, annotation_tensor_val = inputs(FLAGS.dataset_val, train=False, num_epochs=1e4)
+# dataset_train = FLAGS.dataset_train
+dataset_train = '/data/oHongMenYan/voc-2012-segmentation-record/fcn_train.record'
+
+# dataset_val = FLAGS.dataset_val
+dataset_val = '/data/oHongMenYan/voc-2012-segmentation-record/fcn_val.record'
+
+image_tensor_train, orig_img_tensor_train, annotation_tensor_train = inputs(dataset_train, train=True, batch_size=batch_size, num_epochs=1e4)
+image_tensor_val, orig_img_tensor_val, annotation_tensor_val = inputs(dataset_val, train=False, num_epochs=1e4)
 
 image_tensor, orig_img_tensor, annotation_tensor = tf.cond(is_training_placeholder,
                                                            true_fn=lambda: (image_tensor_train, orig_img_tensor_train, annotation_tensor_train),
@@ -58,7 +64,8 @@ number_of_classes = 21
 
 log_folder = os.path.join(FLAGS.output_dir, 'train')
 
-vgg_checkpoint_path = FLAGS.checkpoint_path
+# vgg_checkpoint_path = FLAGS.checkpoint_path
+vgg_checkpoint_path = '/data/oHongMenYan/voc-2012-segmentation-record/vgg_16.ckpt'
 
 # Creates a variable to hold the global_step.
 global_step = tf.Variable(0, trainable=False, name='global_step', dtype=tf.int64)
