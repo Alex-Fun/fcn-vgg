@@ -326,7 +326,7 @@ with sess:
         if gs % 10 == 0:
             logging.debug("Current step% 10: {0} index:{1}".format(gs, i))
             gs, loss, summary_string = sess.run([global_step, cross_entropy_loss, merged_summary_op], feed_dict=feed_dict_to_use)
-            logging.debug("step {0} Current Loss: {1}  index:{1}".format(gs, loss, i))
+            logging.debug("step {0} Current Loss: {1}  index:{2}".format(gs, loss, i))
             end = time.time()
             logging.debug("[{0:.2f}] imgs/s".format(10 * batch_size / (end - start)))
             start = end
