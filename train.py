@@ -322,7 +322,7 @@ with sess:
         feed_dict_to_use[is_training_placeholder] = True
 
         gs, _ = sess.run([global_step, train_step], feed_dict=feed_dict_to_use)
-        logging.debug("Current step: {0} index:{1} ".format(gs, i))
+        logging.debug("Current step: {0} _:{1} index:{2} ".format(gs, _, i))
         if gs % 10 == 0:
             logging.debug("Current step% 10: {0} index:{1}".format(gs, i))
             gs, loss, summary_string = sess.run([global_step, cross_entropy_loss, merged_summary_op], feed_dict=feed_dict_to_use)
