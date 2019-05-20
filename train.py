@@ -19,6 +19,7 @@ import logging
 
 logging.basicConfig(format='%(asctime)s - %(levelname)s - %(filename)s:%(lineno)d - %(message)s', level=logging.DEBUG)
 
+logging.debug("begin: {0}".format(time.time()))
 
 def parse_args(check=True):
     parser = argparse.ArgumentParser()
@@ -320,7 +321,6 @@ with sess:
     start = time.time()
     for i in range(FLAGS.max_steps):
         feed_dict_to_use[is_training_placeholder] = True
-        logging.debug("Current step a: {0} _:{1} index:{2} ".format(gs, _, i))
         gs, _ = sess.run([global_step, train_step], feed_dict=feed_dict_to_use)
         logging.debug("Current step b: {0} _:{1} index:{2} ".format(gs, _, i))
         if gs % 10 == 0:
