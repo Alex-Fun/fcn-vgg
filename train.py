@@ -192,6 +192,8 @@ with tf.variable_scope("adam_vars"):
 
     train_step = optimizer.apply_gradients(grads_and_vars=gradients, global_step=global_step)
 
+    logging.debug("Current step: {0} ".format(global_step))
+
 # Now we define a function that will load the weights from VGG checkpoint
 # into our variables when we call it. We exclude the weights from the last layer
 # which is responsible for class predictions. We do this because
@@ -322,7 +324,9 @@ with sess:
 
         gs, _ = sess.run([global_step, train_step], feed_dict=feed_dict_to_use)
         if gs % 10 == 0:
+            logging.debug("Current step: {0} ".format(global_step))
             gs, loss, summary_string = sess.run([global_step, cross_entropy_loss, merged_summary_op], feed_dict=feed_dict_to_use)
+            logging.debug("after  sess.run Current step: {0} ".format(global_step))
             logging.debug("step {0} Current Loss: {1} ".format(gs, loss))
             end = time.time()
             logging.debug("[{0:.2f}] imgs/s".format(10 * batch_size / (end - start)))
