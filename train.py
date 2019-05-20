@@ -324,6 +324,7 @@ with sess:
         gs, _ = sess.run([global_step, train_step], feed_dict=feed_dict_to_use)
         logging.debug("Current step b: {0} _:{1} index:{2} ".format(gs, _, i))
         if gs % 10 == 0:
+            gs_b = gs
             logging.debug("Current step c% 10: {0} index:{1}".format(gs, i))
             gs, loss, summary_string = sess.run([global_step, cross_entropy_loss, merged_summary_op], feed_dict=feed_dict_to_use)
             logging.debug("step {0} Current Loss: {1}  index:{2}".format(gs, loss, i))
@@ -333,29 +334,29 @@ with sess:
 
             summary_string_writer.add_summary(summary_string, i)
 
-        if gs % 100 == 0:
-            save_path = saver.save(sess, os.path.join(log_folder, "model.ckpt"), global_step=gs)
-            logging.debug("Model saved in file: %s" % save_path)
+            if gs_b % 100 == 0:
+                save_path = saver.save(sess, os.path.join(log_folder, "model.ckpt"), global_step=gs)
+                logging.debug("Model saved in file: %s" % save_path)
 
-        if gs % 200 == 0:
-            eval_folder = os.path.join(FLAGS.output_dir, 'eval')
-            if not os.path.exists(eval_folder):
-                os.makedirs(eval_folder)
+            if gs_b % 200 == 0:
+                eval_folder = os.path.join(FLAGS.output_dir, 'eval')
+                if not os.path.exists(eval_folder):
+                    os.makedirs(eval_folder)
 
-            logging.debug("validation generated at step [{0}]".format(gs))
-            feed_dict_to_use[is_training_placeholder] = False
-            val_pred, val_orig_image, val_annot, val_poss = sess.run([pred, orig_img_tensor, annotation_tensor, probabilities],
-                                                                     feed_dict=feed_dict_to_use)
+                logging.debug("validation generated at step [{0}]".format(gs))
+                feed_dict_to_use[is_training_placeholder] = False
+                val_pred, val_orig_image, val_annot, val_poss = sess.run([pred, orig_img_tensor, annotation_tensor, probabilities],
+                                                                         feed_dict=feed_dict_to_use)
 
-            cv2.imwrite(os.path.join(eval_folder, 'val_{0}_img.jpg'.format(gs)), cv2.cvtColor(np.squeeze(val_orig_image), cv2.COLOR_RGB2BGR))
-            cv2.imwrite(os.path.join(eval_folder, 'val_{0}_annotation.jpg'.format(gs)),  cv2.cvtColor(grayscale_to_voc_impl(np.squeeze(val_annot)), cv2.COLOR_RGB2BGR))
-            cv2.imwrite(os.path.join(eval_folder, 'val_{0}_prediction.jpg'.format(gs)),  cv2.cvtColor(grayscale_to_voc_impl(np.squeeze(val_pred)), cv2.COLOR_RGB2BGR))
+                cv2.imwrite(os.path.join(eval_folder, 'val_{0}_img.jpg'.format(gs)), cv2.cvtColor(np.squeeze(val_orig_image), cv2.COLOR_RGB2BGR))
+                cv2.imwrite(os.path.join(eval_folder, 'val_{0}_annotation.jpg'.format(gs)),  cv2.cvtColor(grayscale_to_voc_impl(np.squeeze(val_annot)), cv2.COLOR_RGB2BGR))
+                cv2.imwrite(os.path.join(eval_folder, 'val_{0}_prediction.jpg'.format(gs)),  cv2.cvtColor(grayscale_to_voc_impl(np.squeeze(val_pred)), cv2.COLOR_RGB2BGR))
 
-            crf_ed = perform_crf(val_orig_image, val_poss)
-            cv2.imwrite(os.path.join(FLAGS.output_dir, 'eval', 'val_{0}_prediction_crfed.jpg'.format(gs)), cv2.cvtColor(grayscale_to_voc_impl(np.squeeze(crf_ed)), cv2.COLOR_RGB2BGR))
+                crf_ed = perform_crf(val_orig_image, val_poss)
+                cv2.imwrite(os.path.join(FLAGS.output_dir, 'eval', 'val_{0}_prediction_crfed.jpg'.format(gs)), cv2.cvtColor(grayscale_to_voc_impl(np.squeeze(crf_ed)), cv2.COLOR_RGB2BGR))
 
-            overlay = cv2.addWeighted(cv2.cvtColor(np.squeeze(val_orig_image), cv2.COLOR_RGB2BGR), 1, cv2.cvtColor(grayscale_to_voc_impl(np.squeeze(crf_ed)), cv2.COLOR_RGB2BGR), 0.8, 0)
-            cv2.imwrite(os.path.join(FLAGS.output_dir, 'eval', 'val_{0}_overlay.jpg'.format(gs)), overlay)
+                overlay = cv2.addWeighted(cv2.cvtColor(np.squeeze(val_orig_image), cv2.COLOR_RGB2BGR), 1, cv2.cvtColor(grayscale_to_voc_impl(np.squeeze(crf_ed)), cv2.COLOR_RGB2BGR), 0.8, 0)
+                cv2.imwrite(os.path.join(FLAGS.output_dir, 'eval', 'val_{0}_overlay.jpg'.format(gs)), overlay)
 
     coord.request_stop()
     coord.join(threads)
